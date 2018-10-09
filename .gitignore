@@ -1,5 +1,9 @@
+# Fuckin Mac
+*.DS_Store
+
 # Prerequisites
 *.d
+
 
 # Object files
 *.o
