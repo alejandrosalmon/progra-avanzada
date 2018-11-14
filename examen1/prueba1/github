@@ -1,0 +1,17 @@
+https://stackoverflow.com/questions/8647454/how-to-get-a-list-of-repositories-apt-get-is-checking
+
+AFAIK you can't ask apt for what are their current sources, however you can do what you want using shell tools.
+
+Getting a list of repositories:
+
+grep -h ^deb /etc/apt/sources.list /etc/apt/sources.list.d/* >> current.repos.list
+
+Applying the list:
+
+apt-add-repository << current.repos.list
+
+Regarding getting repo from a package (installed or available), this will do the trick
+
+apt-cache policy package_name |grep -m1 http| awk '{ print $2 " " $3 }'
+
+However, that will show you the repository of the latest version available of that package, you may have more repositories for the same package with older versions. Remove all the grep/awk stuff if you want to see the full list.

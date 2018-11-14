@@ -1,0 +1,30 @@
+
+¿De cuál problema de sincronización se trata?
+
+	Smokers problem ftw
+	Se tienen 3 ingredientes encesarios para lograr un ubjetivo pero no se comparten entre procesos, y un proceso que provee 2 ingrediente para que el proceso con el ingrediente faltante lo obtenga y complete los ingredientes necesarios
+
+Define la estrategia y mecanismos que emplearás la solución del
+problema. Fundamenta, de manera clara y concisa, cada una de
+tus decisiones.
+
+Defino 4 semaforos (ingrediente 1 [billete 20], ingrediente 2 [billete de 50], ingrediente 3 [billete de 100] Benji, Otakus  )
+CAda semaforo indica cuando uno de estos billetes se encuentra en el aparador 
+
+LAMENDABLEMENTE MI ESTRATEGIA GENERA DEADLOCKS :(
+
+correr:
+
+./buffer
+./benitos &
+./morelos &
+./indio &
+./benji
+
+
+Implementación del problema. Es importante que el comporta-
+miento de su solución sea idéntico al problema del examen. De-
+berás colocar un archivo de texto explicando cómo debe ser
+probado tu programa. Si no existe el archivo se aplicará una
+penalización de 20 puntos aun cuando el problema sea co-
+rrecto.

@@ -1,0 +1,42 @@
+Creating the matrix A:
+Setting the matrix A:
+Printing the matrix A:
+      1.20      2.30      0.00
+      3.40      4.50      0.00
+
+Creating the matrix B:
+Setting the matrix B:
+Printing the matrix B:
+      5.50      6.60
+      1.20      2.10
+      6.60      7.70
+
+Creating the matrix C:
+A x B = C:
+Printing the matrix C:
+      9.36     12.75     16.83
+     24.10     31.89     41.03
+     38.84     51.03     65.23
+
+B x A = C:
+A->rows must be equal to C->rows
+Printing the matrix C:
+      9.36     12.75     16.83
+     24.10     31.89     41.03
+     38.84     51.03     65.23
+
+Setting a NULL matrix (D):
+the matrix must be valid
+A x D(NULL) = C:
+the matrixes must be valids
+D(NULL) x A = C:
+the matrixes must be valids
+Allocating E with (0,0): 
+nrows and ncols must be greater than zero
+Freeing A:
+Freeing B:
+Freeing C:
+Freeing D(NULL):
+the matrix must be a valid one
+Freeing E(NULL):
+the matrix must be a valid one
