@@ -1,4 +1,5 @@
 #include "header.h"
+#include <pthread.h>
 
 /*
 
@@ -14,78 +15,123 @@
 
 */
 
-int serve_client(int nsfd){
+char* read_path(int sfd){
+	long length, path;
+	char* data;
+	read(sfd, &length, sizeof(length));
+	printf("length = %li\n", length);
+	
+	data = (char*) malloc(length * sizeof(char));
+	path = read(sfd, data, length * sizeof(char));
+	printf("File path = %s\n", data);
+	free(data);
+		
+	printf("\n\n");
+	
+	if (path != length) {
+		perror("Path no es del tamano indicado\n");
+		exit(-1);
+	} else {
+		return data;
+	}
+	close(sfd);
+}
+
+
+void* serve_client(void* param){
 	int code;
 	char* message;
 	long len;
+	int nsfd = *( (int*) param);
 
 	srand(getpid());
-	code = rcv_msg(nsfd);
+	read(nsfd, &code, sizeof(code));
+	printf("%d codigo\n", code);
 	switch(code){
+		message = read_path(nsfd);
 		case SEND_FILE:
+			printf("SEND FILE\n");
 			break;
 		case SHOW_DIR:
+		message = read_path(nsfd);
+			printf("SHOW_DIR\n");
 			break;
 		case END_CONNECTION:
+			printf("END_CONNECTION\n");
 			break;
 		default:
-			snd_msg(nsfd, UNKNOWN_COM, "No existe el comando");
+			message = "No existe tal comando\n";
+			snd_msg(nsfd, UNKNOWN_COM, message);
 	}
 }
 
-int main(int argc, char *argv[]) {
-	int sfd, nsfd, pid, port;
-	struct sockaddr_in server_info, cli_addr;
-	int cli_addr_len;
-	
-	if (argc != 1) {
-	    printf("usage: %s\n", argv[0]);
-	    return -1;
-	}
+void server(char* ip, int port, char* program) {
+	int sfd, nsfd, pid;
+	pthread_t thread_id;
+	struct sockaddr_in server_info, client_info;
 	
 	/* Apertura de un conector orientado a conexión de la familia 
 	AF_INET. */
 	if ((sfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		perror(argv[0]);
-		return -1;
+		perror(program);
+		exit(-1);
 	} 
-	printf("Creo socket");
+	printf("Creo socket \n");
 	/* Publicidad de la dirección del servidor. 
 	*/
 	server_info.sin_family = AF_INET;
-	server_info.sin_addr.s_addr = inet_addr(DEFAULT_IP);
-	server_info.sin_port = htons(DEFAULT_PORT);
-	if ( bind(sfd, (struct sockaddr *) &server_info, sizeof(server_info)) == -1) {
+	server_info.sin_addr.s_addr = inet_addr(ip);
+	server_info.sin_port = htons(port);
+	if ( bind(sfd, (struct sockaddr *) &server_info, sizeof(server_info)) < 0) {
+		perror(program);
+		exit(-1);
+	}
+	printf("INICIO BIND\n");
+	/* Declaración de un cola de 5 elementos para peticiones de
+	conexiones. */
+	listen(sfd, 1);
+	while(1) {
+		printf("Inicia while\n");
+		int len = sizeof(client_info);
+		if ((nsfd = accept(sfd, (struct sockaddr *) &client_info, &len)) < 0) {
+			printf("nsfd no creado");
+			perror(program);
+			exit(-1);
+		}
+		snd_msg(nsfd, HELLO, "HOLA");
+		pthread_create(&thread_id, NULL, serve_client, ((void *) &nsfd));
+		/* Código del proceso padre. */
+	}
+	
+}
+
+int main(int argc, char *argv[]) {
+	int port, log_path;
+	char ip[15];
+	
+	//verifica numero correcto de parametros
+	if (argc != 4) {
+		printf("usage: %s ip port log_path\n", argv[0]);
+		return -1;
+	}
+	
+	//valida que se use un puerto correcto
+	port = atoi(argv[2]);
+	if (port < 5000) {
+		printf("%s: The port must be greater than 5000.\n", argv[0]);
+		return -1;
+	}
+	
+	if(strcpy(ip, argv[1]) < 0){
+		printf("%s: Error with ip address.\n", argv[1]);
+	}
+	
+		//verifica que se pueda abrir el log, si no existe lo crea
+	if ( (log_path = open(argv[3], O_WRONLY | O_CREAT, 0666)) < 0 ) {
 		perror(argv[0]);
 		return -1;
 	}
-	printf("INICIO BIND");
-	/* Declaración de un cola de 5 elementos para peticiones de
-	conexiones. */
-	listen(sfd, 5);
-	while(1) {
-		printf("Inicia while");
-		cli_addr_len = sizeof(cli_addr);
-		if ((nsfd = accept(sfd, (struct sockaddr *) &cli_addr, &cli_addr_len)) == -1) {
-			printf("nsfd no creado");
-			perror(argv[0]);
-			return -1;
-		}
-		if ((pid = fork()) == -1) { 
-			perror(argv[0]);
-			return -1;
-		} else if (pid == 0) {
-			/*
-			Código del proceso hijo. 
-			*/
-			printf("proceso hijo");
-			close(sfd);
-			serve_client(nsfd);
-			close(nsfd);
-			return 0;
-		}
-		/* Código del proceso padre. */
-		snd_msg(nsfd, HELLO, "HOLA");
-		close(nsfd);
-	}
+	
+	server(ip, port, argv[0]);
+	
 }

@@ -11,7 +11,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
-#include <pthread.h>
 
 #define READ	101
 #define WRITE	201

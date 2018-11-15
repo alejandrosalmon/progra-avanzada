@@ -33,9 +33,6 @@
 
 #define PRINT_DIR       302
 
-#define DEFAULT_PORT    8888
-#define DEFAULT_IP      "127.0.0.1"
-
 
 void snd_msg(int sfd, int code, char* data) {
 	long length = strlen(data);
@@ -43,7 +40,7 @@ void snd_msg(int sfd, int code, char* data) {
 	printf("enviando...\n");
 	printf("codigo: %i\n", code);
 	write(sfd, &code, sizeof(code));
-	printf("lenght = %li\n", length);
+	printf("length = %li\n", length);
 	write(sfd, &length, sizeof(length));
 	printf("text = %s\n", data);
 	write(sfd, data, length * sizeof(char));
