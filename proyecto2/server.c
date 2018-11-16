@@ -18,14 +18,14 @@
 char* read_path(int sfd){
 	long length, path;
 	char* data;
+
 	read(sfd, &length, sizeof(length));
-	printf("length = %li\n", length);
-	
+	printf("Server: length = %li\n", length);
+
 	data = (char*) malloc(length * sizeof(char));
 	path = read(sfd, data, length * sizeof(char));
 	printf("File path = %s\n", data);
-	free(data);
-		
+	
 	printf("\n\n");
 	
 	if (path != length) {
@@ -45,23 +45,27 @@ void* serve_client(void* param){
 	int nsfd = *( (int*) param);
 
 	srand(getpid());
-	read(nsfd, &code, sizeof(code));
-	printf("%d codigo\n", code);
-	switch(code){
-		message = read_path(nsfd);
-		case SEND_FILE:
-			printf("SEND FILE\n");
-			break;
-		case SHOW_DIR:
-		message = read_path(nsfd);
-			printf("SHOW_DIR\n");
-			break;
-		case END_CONNECTION:
-			printf("END_CONNECTION\n");
-			break;
-		default:
-			message = "No existe tal comando\n";
-			snd_msg(nsfd, UNKNOWN_COM, message);
+	while(1){	
+		read(nsfd, &code, sizeof(code));
+		printf("Server: codigo recibido %d \n", code);
+		switch(code){
+			case SEND_FILE:		
+				message = read_path(nsfd);
+				printf("Path: %s\n", message);
+				printf("funcion de send file\n");
+				break;
+			case SHOW_DIR:
+				message = read_path(nsfd);
+				printf("SHOW_DIR\n");
+				break;
+			case END_CONNECTION:
+				printf("END_CONNECTION\n");
+				break;
+			default:
+				message = read_path(nsfd);
+				message = "No existe tal comando\n";
+				snd_msg(nsfd, UNKNOWN_COM, message);
+		}
 	}
 }
 
