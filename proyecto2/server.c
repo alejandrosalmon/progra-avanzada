@@ -26,47 +26,77 @@ char* read_path(int sfd){
 	path = read(sfd, data, length * sizeof(char));
 	printf("File path = %s\n", data);
 	
-	printf("\n\n");
-	
 	if (path != length) {
-		perror("Path no es del tamano indicado\n");
+		perror("Path no es del tamano indicado\n\n");
 		exit(-1);
 	} else {
-		return data;
+		return data; 
 	}
-	close(sfd);
 }
+
+int send_file(char* path){
+	int f_origin;
+	if ((f_origin = open(path, O_RDONLY)) < 0){
+		printf("Server: File: \'%s\' doesn't exist in directory \n", path);
+		return NOT_FOUND;
+	}
+	
+}
+
+int show_dir(){
+
+}
+
+/*
+
+    Permiso denegado (código '201' y el mensaje de error).
+    Archivo no encontrado (código '202' y el mensaje de error).
+    Error interno (código '203' y el error generado).
+    La ruta es un directorio (código '205' y el mensaje de error).
+    Enviando archivo (código '301' y el contenido del archivo).
+    Directorio no encontrado (código '206' y el mensaje de error).
+    La ruta no es un directorio (código '207' y el mensaje de error).
+    Enviando el contenido de un directorio (código '302' y el listado del directorio).
+*/
 
 
 void* serve_client(void* param){
-	int code;
-	char* message;
+	int code, flag =1;
+	char* message, *path;
 	long len;
 	int nsfd = *( (int*) param);
 
 	srand(getpid());
-	while(1){	
+	while(flag == 1){
 		read(nsfd, &code, sizeof(code));
 		printf("Server: codigo recibido %d \n", code);
 		switch(code){
 			case SEND_FILE:		
-				message = read_path(nsfd);
-				printf("Path: %s\n", message);
-				printf("funcion de send file\n");
+				path = read_path(nsfd);
+				printf("Path: %s\n", path);
+				message = "Permiso denegado\n";
+				snd_msg(nsfd, DENIED, message);
+				//send_file();
+				printf("funcion de send file\n\n");
 				break;
 			case SHOW_DIR:
 				message = read_path(nsfd);
-				printf("SHOW_DIR\n");
+				printf("SHOW_DIR\n\n");
+				//show_dir();
 				break;
 			case END_CONNECTION:
-				printf("END_CONNECTION\n");
+				close(nsfd);
+				flag = 0;
+				printf("END_CONNECTION\n\n");
+				exit(1);
 				break;
 			default:
 				message = read_path(nsfd);
-				message = "No existe tal comando\n";
+				message = "No existe tal comando\n\n";
 				snd_msg(nsfd, UNKNOWN_COM, message);
 		}
 	}
+	printf("cierra");
 }
 
 void server(char* ip, int port, char* program) {
@@ -104,7 +134,6 @@ void server(char* ip, int port, char* program) {
 		}
 		snd_msg(nsfd, HELLO, "HOLA");
 		pthread_create(&thread_id, NULL, serve_client, ((void *) &nsfd));
-		/* Código del proceso padre. */
 	}
 	
 }

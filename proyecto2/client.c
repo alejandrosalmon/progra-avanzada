@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
 		exit(0);
 	}
 	
-	snd_msg(sfd, 103, "Adios");
+	snd_msg(sfd, 103, "Adios");	
 	
 	close(sfd);
 	
