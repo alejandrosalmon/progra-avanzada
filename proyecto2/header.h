@@ -12,16 +12,13 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 
-#define CONTINUE        2
-#define END             -2
-
 // client
 #define SEND_FILE       101
 #define SHOW_DIR        102
 #define END_CONNECTION  103
 
 // server
-#define HELLO		1
+#define HELLO			1
 #define DENIED          201
 #define NOT_FOUND       202
 #define INTERNAL_ERR    203

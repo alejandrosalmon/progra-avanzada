@@ -125,11 +125,11 @@ int main(int argc, char* argv[]) {
 		exit(0);
 	}
 	
-	if (test_case_102(sfd) != 0) {
+/*	if (test_case_102(sfd) != 0) {
 		close(sfd);
 		exit(0);
 	}
-	
+	*/
 	snd_msg(sfd, 103, "Adios");	
 	
 	close(sfd);
